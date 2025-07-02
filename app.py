@@ -1,3 +1,6 @@
+import os
+print("Current working directory:", os.getcwd())
+
 from dotenv import load_dotenv
 import os
 
