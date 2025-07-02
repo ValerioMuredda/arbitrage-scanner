@@ -1,3 +1,4 @@
+st.write("🚀 App has started.")
 import requests
 import pandas as pd
 import os
