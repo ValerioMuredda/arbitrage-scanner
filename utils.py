@@ -11,7 +11,7 @@ def load_data():
     URL = f"https://api.the-odds-api.com/v4/sports/upcoming/odds"
 
     params = {
-        "apiKey": API_KEY,
+        "api_Key": API_KEY,
         "regions": REGIONS,
         "markets": "h2h",  # head-to-head
         "oddsFormat": "decimal",
