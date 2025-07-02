@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def load_data():
-    API_KEY = os.getenv("API_KEY") 
+    import streamlit as st
+API_KEY = st.secrets["API_KEY"]
+
     REGIONS = "us,uk"
     URL = "https://api.the-odds-api.com/v4/sports/upcoming/odds"
 
