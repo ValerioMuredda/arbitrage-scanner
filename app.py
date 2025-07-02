@@ -1,54 +1,57 @@
-st.write("🚀 App has started.")
-import requests
-import pandas as pd
 import os
+from dotenv import load_dotenv
+import streamlit as st
+import pandas as pd
 
+# Debug line to show app is alive
+st.write("🚀 App has started.")
+
+# Load environment variables
+load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-def load_data():
-    url = "https://api.the-odds-api.com/v4/sports/upcoming/odds"
-    params = {
-        "apiKey": API_KEY,
-        "regions": "us",
-        "markets": "h2h",
-        "oddsFormat": "decimal"
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
-    
-    rows = []
-    for match in data:
-        if len(match["bookmakers"]) < 2:
-            continue
-        site1 = match["bookmakers"][0]["markets"][0]["outcomes"]
-        site2 = match["bookmakers"][1]["markets"][0]["outcomes"]
-        if len(site1) < 2 or len(site2) < 2:
-            continue
-        row = {
-            "team1": site1[0]["name"],
-            "team2": site1[1]["name"],
-            "site1_team1_odds": site1[0]["price"],
-            "site1_team2_odds": site1[1]["price"],
-            "site2_team1_odds": site2[0]["price"],
-            "site2_team2_odds": site2[1]["price"],
-        }
-        rows.append(row)
-    return pd.DataFrame(rows)
+# Import functions from utils and telegram_alert (must be in same folder)
+try:
+    from utils import load_data, calculate_arbitrage_opportunities
+    from telegram_alert import send_alert
+except Exception as e:
+    st.error(f"❌ Import failed: {e}")
+    st.stop()
 
-def calculate_arbitrage_opportunities(df):
-    opportunities = []
-    for index, row in df.iterrows():
-        odds_team1 = max(row["site1_team1_odds"], row["site2_team1_odds"])
-        odds_team2 = max(row["site1_team2_odds"], row["site2_team2_odds"])
-        inv_team1 = 1 / odds_team1
-        inv_team2 = 1 / odds_team2
-        total_inv = inv_team1 + inv_team2
-        if total_inv < 1:
-            profit_margin = (1 - total_inv) * 100
-            opportunities.append({
-                "Match": f"{row['team1']} vs {row['team2']}",
-                "Best Odds Team 1": odds_team1,
-                "Best Odds Team 2": odds_team2,
-                "Profit Margin": round(profit_margin, 2)
-            })
-    return pd.DataFrame(opportunities)
+# Set page layout
+st.set_page_config(page_title="EGO Arbitrage Scanner", layout="wide")
+st.markdown("<h1 style='color: red;'>Welcome to EGO Arbitrage Scanner</h1>", unsafe_allow_html=True)
+st.markdown("This app compares odds across sportsbooks to detect arbitrage opportunities.")
+
+# Load and display data
+try:
+    data = load_data()
+    arbs = calculate_arbitrage_opportunities(data)
+except Exception as e:
+    st.error(f"❌ Data load or calculation failed: {e}")
+    st.stop()
+
+st.markdown("### 📊 Live Arbitrage Opportunities")
+st.dataframe(arbs, use_container_width=True)
+
+# Simulate demo bankroll
+if "bankroll" not in st.session_state:
+    st.session_state.bankroll = 1000
+    st.session_state.bets = []
+
+st.markdown(f"💰 **Demo Bankroll:** ${st.session_state.bankroll}")
+
+# Place a simulated bet
+selected_index = st.selectbox("Select match to bet on:", arbs.index)
+if st.button("Place Bet"):
+    match = arbs.loc[selected_index]
+    profit = match["Profit Margin"] * st.session_state.bankroll / 100
+    st.session_state.bets.append(match.to_dict())
+    st.session_state.bankroll += profit
+    send_alert(f"✅ Bet placed! Match: {match.to_dict()}")
+    st.success(f"✅ Bet placed! Estimated profit: ${profit:.2f}")
+
+# Show bet history
+if st.session_state.bets:
+    st.markdown("### 📜 Bet History")
+    st.dataframe(pd.DataFrame(st.session_state.bets))
