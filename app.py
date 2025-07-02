@@ -1,20 +1,20 @@
 import os
 from dotenv import load_dotenv
-
 import streamlit as st
 import pandas as pd
 
-from utils import load_data, calculate_arbitrage_opportunities
-from telegram_alert import send_alert
+# Debug line: shows where the script is running from
+st.write("Current working directory:", os.getcwd())
 
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-# Debug: Print current directory
-print("Current working directory:", os.getcwd())
+# ✅ Import your functions directly (assuming utils.py is in same directory)
+from utils import load_data, calculate_arbitrage_opportunities
+from telegram_alert import send_alert
 
-# Streamlit config
+# Set page layout
 st.set_page_config(page_title="EGO Arbitrage Scanner", layout="wide")
 st.markdown("<h1 style='color: red;'>Welcome to EGO Arbitrage Scanner</h1>", unsafe_allow_html=True)
 st.markdown("This app compares odds across sportsbooks to detect arbitrage opportunities.")
@@ -38,14 +38,12 @@ selected_index = st.selectbox("Select match to bet on", arbs.index)
 if st.button("Place Bet"):
     match = arbs.loc[selected_index]
     profit = match["Profit Margin"] * st.session_state.bankroll / 100
-
     st.session_state.bets.append(match.to_dict())
     st.session_state.bankroll += profit
-
-    send_alert(f"Arbitrage bet placed: {match.to_dict()}")
+    send_alert(f"📢 Bet placed: {match.to_dict()}")
     st.success(f"✅ Bet placed! Estimated profit: ${profit:.2f}")
 
 # Display bet history
 if st.session_state.bets:
-    st.markdown("### 🧾 Bet History")
+    st.markdown("### 📜 Bet History")
     st.dataframe(pd.DataFrame(st.session_state.bets))
