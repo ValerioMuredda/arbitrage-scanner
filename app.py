@@ -30,6 +30,11 @@ data = load_data()
 arbs = calculate_arbitrage_opportunities(data)
 
 # Display arbitrage table
+if opportunities:
+    st.table(opportunities)
+else:
+    st.warning("No opportunities found right now. Check back in a minute!")
+
 st.markdown("### 📊 Live Arbitrage Opportunities")
 st.dataframe(arbs, use_container_width=True)
 
