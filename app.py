@@ -28,12 +28,9 @@ st.markdown("This app compares odds across sportsbooks to detect arbitrage oppor
 # Load and process data
 data = load_data()
 arbs = calculate_arbitrage_opportunities(data)
-
-# Display arbitrage table
-if opportunities:
-    st.table(opportunities)
-else:
-    st.warning("No opportunities found right now. Check back in a minute!")
+if arbs.empty:
+    st.warning("⚠️ No arbitrage opportunities found at the moment.")
+    st.stop()
 
 st.markdown("### 📊 Live Arbitrage Opportunities")
 st.dataframe(arbs, use_container_width=True)
