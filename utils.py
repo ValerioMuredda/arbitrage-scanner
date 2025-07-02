@@ -24,7 +24,7 @@ def load_data():
             odds2 = bm2[1]['price']
 
             match_name = f"{teams[0]} vs {teams[1]}"
-            profit_margin = calculate_arbitrage_opportunity(odds1, odds2)
+            profit_margin = calculate_arbitrage_opportunities(odds1, odds2)
 
             rows.append({
                 "Match": match_name,
