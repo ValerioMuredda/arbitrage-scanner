@@ -12,6 +12,8 @@ from telegram_alert import send_alert
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise ValueError("API_KEY not found. Make sure .env is loaded correctly."
 
 # Set page layout
 st.set_page_config(page_title="EGO Arbitrage Scanner", layout="wide")
