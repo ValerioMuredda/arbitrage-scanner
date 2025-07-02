@@ -1,8 +1,5 @@
 import os
 import requests
-
-load_dotenv()
-
 def load_data():
     api_key = os.getenv("ODDS_API_KEY")
     url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds?apiKey={api_key}&regions=eu,us&markets=h2h&oddsFormat=decimal"
