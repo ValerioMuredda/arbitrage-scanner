@@ -1,12 +1,18 @@
+import os
+import requests
+from dotenv import load_dotenv
 
-from telegram import Bot
+load_dotenv()
 
-# Replace with your actual token and chat_id
-BOT_TOKEN = '8012047938:AAFWZuiE9OPSpp-V2O0XNtBbdxrMy3alidzQ'
-CHAT_ID = '5197787052'
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_alert(message):
+    if not BOT_TOKEN or not CHAT_ID:
+        return
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": message}
     try:
-        Bot(token=BOT_TOKEN).send_message(chat_id=CHAT_ID, text=message)
+        requests.post(url, data=payload)
     except Exception as e:
-        print(f"Telegram error: {e}")
+        print(f"Failed to send alert: {e}")
