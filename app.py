@@ -9,7 +9,7 @@ API_KEY = os.getenv("API_KEY")
 
 import streamlit as st
 import pandas as pd
-from .utils import load_data, calculate_arbitrage_opportunities
+from utils import load_data, calculate_arbitrage_opportunities
 from telegram_alert import send_alert
 
 st.set_page_config(page_title="EGO Arbitrage Scanner", layout="wide")
